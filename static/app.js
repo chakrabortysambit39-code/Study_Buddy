@@ -22,7 +22,7 @@ async function sendMessage(){
   addMessage("user",message); history.push({role:"user",content:message}); input.value="";
   send.disabled=true; const typing=addMessage("assistant","Thinking…"); typing.querySelector(".bubble").className="bubble typing";
   try{
-    const r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message,mode,history:history.slice(-10)})});
+    const r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message,mode,history:history.slice(0,-1).slice(-10)})});
     const data=await r.json(); typing.remove();
     if(!r.ok) throw new Error(data.error||"Something went wrong");
     addMessage("assistant",data.answer); history.push({role:"assistant",content:data.answer});
