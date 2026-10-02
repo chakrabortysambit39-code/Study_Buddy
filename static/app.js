@@ -61,3 +61,17 @@ async function clearHistory(){
   await fetch("/api/clear-history",{method:"POST"});
   newChat();
 }
+
+async function loadSavedHistory(){
+  try{
+    const r=await fetch("/api/history");
+    const data=await r.json();
+    if(!data.messages?.length) return;
+    document.getElementById("welcome")?.remove();
+    data.messages.forEach(m=>addMessage(m.role,m.content));
+    history=data.messages.map(m=>({role:m.role,content:m.content}));
+    count=data.messages.filter(m=>m.role==="user").length;
+    document.getElementById("questions").textContent=count;
+  }catch(e){console.warn("History unavailable",e)}
+}
+loadSavedHistory();
