@@ -31,3 +31,33 @@ async function sendMessage(){
   finally{send.disabled=false;input.focus()}
 }
 function newChat(){history=[];count=0;document.getElementById("questions").textContent="0";document.getElementById("streak").textContent="0";chat.innerHTML='<div class="welcome" id="welcome"><div class="hero-icon">📚</div><h1>What are we learning today?</h1><p>Ask anything. Study Buddy will teach it step-by-step.</p></div>'}
+
+let didLoaded=false;
+function toggleAvatar(){
+  const card=document.getElementById("avatarCard");
+  if(card.style.display==="none"){
+    card.style.display="block";
+    if(!didLoaded) loadDID();
+  } else card.style.display="none";
+}
+function loadDID(){
+  const cfg=window.STUDY_BUDDY||{};
+  if(!cfg.didAgentId||!cfg.didClientKey){
+    document.getElementById("didAgent").innerHTML="<div style='padding:24px;color:#8d99b0'>Add DID_AGENT_ID and DID_CLIENT_KEY in Render Environment to enable the AI avatar.</div>";
+    return;
+  }
+  const s=document.createElement("script");
+  s.type="module";
+  s.src="https://agent.d-id.com/v2/index.js";
+  s.dataset.mode="fabio";
+  s.dataset.clientKey=cfg.didClientKey;
+  s.dataset.agentId=cfg.didAgentId;
+  s.dataset.name="study-buddy-did";
+  document.getElementById("didAgent").appendChild(s);
+  didLoaded=true;
+}
+async function clearHistory(){
+  if(!confirm("Clear saved Study Buddy history?")) return;
+  await fetch("/api/clear-history",{method:"POST"});
+  newChat();
+}
