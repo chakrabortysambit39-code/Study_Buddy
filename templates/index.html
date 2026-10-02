@@ -23,8 +23,9 @@
   <main class="main">
     <header class="topbar">
       <div><span class="status-dot"></span> Study Buddy <span class="pill">AI</span></div>
-      <div class="stats"><span id="questions">0</span> questions · <span id="streak">0</span> session</div>
+      <div class="stats"><span id="questions">0</span> questions · <button class="clear-btn" onclick="clearHistory()">Clear history</button></div>
     </header>
+      <section class="avatar-card" id="avatarCard" style="display:none"><div class="avatar-head"><b>🎥 AI Avatar Tutor</b><button onclick="toggleAvatar()">Hide</button></div><div id="didAgent"></div></section>
 
     <section class="chat" id="chat">
       <div class="welcome" id="welcome">
@@ -49,6 +50,7 @@
     </div>
   </main>
 </div>
+<script>window.STUDY_BUDDY={didAgentId={{ did_agent_id|tojson }},didClientKey={{ did_client_key|tojson }}};</script>
 <script src="/static/app.js"></script>
 </body>
 </html>
