@@ -16,21 +16,43 @@ if DATABASE_URL.startswith("postgres://"):
 elif DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
 
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
-with engine.begin() as conn:
-    conn.execute(text("""CREATE TABLE IF NOT EXISTS messages (
-        id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-        role VARCHAR(20) NOT NULL,
-        content TEXT NOT NULL,
-        mode VARCHAR(30) NOT NULL,
-        created_at TIMESTAMP NOT NULL
-    )""") if "sqlite" not in DATABASE_URL else text("""CREATE TABLE IF NOT EXISTS messages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        role TEXT NOT NULL,
-        content TEXT NOT NULL,
-        mode TEXT NOT NULL,
-        created_at TEXT NOT NULL
-    )"""))
+def make_engine(url):
+    return create_engine(url, pool_pre_ping=True)
+
+def init_database():
+    global engine, database_ok
+    try:
+        engine = make_engine(DATABASE_URL)
+        with engine.begin() as conn:
+            conn.execute(text("""CREATE TABLE IF NOT EXISTS messages (
+                id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+                role VARCHAR(20) NOT NULL,
+                content TEXT NOT NULL,
+                mode VARCHAR(30) NOT NULL,
+                created_at TIMESTAMP NOT NULL
+            )""") if "sqlite" not in DATABASE_URL else text("""CREATE TABLE IF NOT EXISTS messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                role TEXT NOT NULL,
+                content TEXT NOT NULL,
+                mode TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )"""))
+        database_ok = True
+    except Exception as exc:
+        print(f"Database unavailable: {exc}")
+        # Keep the web app alive while Render's external database is unavailable.
+        engine = make_engine("sqlite:///study_buddy_fallback.db")
+        with engine.begin() as conn:
+            conn.execute(text("""CREATE TABLE IF NOT EXISTS messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                role TEXT NOT NULL,
+                content TEXT NOT NULL,
+                mode TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )"""))
+        database_ok = False
+
+init_database()
 
 groq_key = os.getenv("GROQ_API_KEY")
 client = Groq(api_key=groq_key) if groq_key else None
@@ -62,7 +84,7 @@ def home():
 
 @app.get("/health")
 def health():
-    return jsonify({"status": "ok", "groq": bool(groq_key), "database": True,
+    return jsonify({"status": "ok", "groq": bool(groq_key), "database": database_ok,
                     "did_agent": bool(os.getenv("DID_AGENT_ID") and os.getenv("DID_CLIENT_KEY"))})
 
 @app.get("/api/history")
