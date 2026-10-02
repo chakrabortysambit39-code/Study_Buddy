@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Study Buddy AI</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><span class="logo">✦</span><div><b>Study Buddy</b><small>AI learning companion</small></div></div>
+    <button class="new-chat" onclick="newChat()">＋ New study session</button>
+    <div class="side-title">Study modes</div>
+    <button class="mode active" data-mode="tutor">🤖 AI Tutor</button>
+    <button class="mode" data-mode="explain">💡 Explain Simply</button>
+    <button class="mode" data-mode="quiz">🧠 Quiz Me</button>
+    <button class="mode" data-mode="flashcards">🃏 Flashcards</button>
+    <button class="mode" data-mode="exam">🎯 Exam Coach</button>
+    <div class="sidebar-footer">Built to learn, not just answer.</div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div><span class="status-dot"></span> Study Buddy <span class="pill">AI</span></div>
+      <div class="stats"><span id="questions">0</span> questions · <span id="streak">0</span> session</div>
+    </header>
+
+    <section class="chat" id="chat">
+      <div class="welcome" id="welcome">
+        <div class="hero-icon">📚</div>
+        <h1>What are we learning today?</h1>
+        <p>Ask anything. Study Buddy will teach it step-by-step.</p>
+        <div class="suggestions">
+          <button onclick="usePrompt('Explain photosynthesis in a simple way')">🌱 Explain photosynthesis</button>
+          <button onclick="usePrompt('Quiz me on fractions')">🧮 Quiz me on fractions</button>
+          <button onclick="usePrompt('Make flashcards for the water cycle')">💧 Make water-cycle flashcards</button>
+          <button onclick="usePrompt('Help me prepare for a science exam')">🎯 Exam prep</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="composer-wrap">
+      <div class="composer">
+        <textarea id="input" rows="1" placeholder="Ask Study Buddy anything..." onkeydown="handleKey(event)"></textarea>
+        <button id="send" onclick="sendMessage()" aria-label="Send">➤</button>
+      </div>
+      <div class="hint">Enter to send · Shift + Enter for a new line</div>
+    </div>
+  </main>
+</div>
+<script src="/static/app.js"></script>
+</body>
+</html>
